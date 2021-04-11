@@ -1,6 +1,6 @@
 variable "security_group_name" {
   description = "Name of the Security Group."
-  default     = "security_group_mudmuseum_com"
+  default     = "security_group_mudmuseum"
 }
 
 variable "ec2_ingress_ports" {
