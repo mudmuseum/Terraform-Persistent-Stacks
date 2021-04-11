@@ -2,7 +2,7 @@ module "vpc" {
   source                             = "github.com/mudmuseum/terraform-modules.git//modules/vpc"
 
   cidr_block                         = "10.0.0.0/16"
-  vpc_tag_name                       = "MudMuseum VPC."
+  tag_name                           = "MudMuseum VPC."
 }
 
 module "public_subnet" {
@@ -15,25 +15,25 @@ module "public_subnet" {
 }
 
 module "internet_gateway" {
-  source                             = "github.com/mudmuseum/terraform-modules.git//modules/internet_gateway"
+  source                             = "github.com/mudmuseum/terraform-modules.git//modules/internet_gateway?ref=v0.0.1"
 
   vpc_id                             = module.vpc.vpc_id
   internet_gateway_tag_name          = "MudMuseum Internet Gateway."
 }
 
 module "public_route_table" {
-  source                             = "github.com/mudmuseum/terraform-modules.git//modules/route_table"
+  source                             = "github.com/mudmuseum/terraform-modules.git//modules/route_table?ref=v0.0.2"
 
   vpc_id                             = module.vpc.vpc_id
   route_table_public_cidr_block      = "0.0.0.0/0"
   route_table_ipv6_public_cidr_block = "::/0"
-  internet_gateway_id                = module.internet_gateway.internet_gateway_id
+  internet_gateway_id                = module.internet_gateway.id
   route_table_tag_name               = "MudMuseum Routing Table."
 }
 
 module "public_route_association" {
-  source                             = "github.com/mudmuseum/terraform-modules.git//modules/route_table_association"
+  source                             = "github.com/mudmuseum/terraform-modules.git//modules/route_table_association?ref=v0.0.2"
 
-  subnet_id                          = module.public_subnet.public_subnet_id
-  route_table_id                     = module.public_route_table.public_route_table_id
+  public_subnet_id                   = module.public_subnet.public_subnet_id
+  route_table_public_route_id        = module.public_route_table.public_route_table_id
 }
