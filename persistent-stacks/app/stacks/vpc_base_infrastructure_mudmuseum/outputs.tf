@@ -1,7 +1,7 @@
-# output "vpc_id" {
-#  description = "The VPC ID for the base infrastructure for MudMuseum."
-#   value       = module.vpc.id
-# }
+output "vpc_id" {
+  description = "The VPC ID for the base infrastructure for MudMuseum."
+  value       = module.vpc.vpc_id
+}
 
 # output "internet_gateway_id" {
 #   description = "The Internet Gateway ID for the base infrastructure for MudMuseum."
