@@ -1,5 +1,12 @@
 data "aws_caller_identity" "current" {}
 
+#####################################
+#                                   #
+# IAM Policy, Group, and Attachment #
+#    for GitHub Actions Website     #
+#                                   #
+#####################################
+
 data "aws_iam_policy_document" "iam_policy_document_github_actions" {
 
   statement {
@@ -38,4 +45,58 @@ module "iam_group_policy_attachment_github_actions_website" {
 
   group_name  = module.iam_group_github_actions_website.name
   policy_arn  = module.iam_policy_github_actions_website.policy_arn
+}
+
+#####################################
+#                                   #
+# IAM Policy, Group, and Attachment #
+#    for GitHub Actions ECR Push    #
+#                                   #
+#####################################
+
+data "aws_iam_policy_document" "iam_policy_document_github_actions_push_ecr" {
+
+  statement {
+    actions     = [ "ecr:GetAuthorizationToken" ]
+    resources   = [ "*" ]
+  }
+  statement {
+    actions     = [ "ecr:UploadLayerPart",
+                    "ecr:UntagResource",
+                    "ecr:TagResource",
+                    "ecr:StartImageScan",
+                    "ecr:PutImage",
+                    "ecr:ListTagsForResource",
+                    "ecr:ListImages",
+                    "ecr:InitiateLayerUpload",
+                    "ecr:GetDownloadUrlForLayer",
+                    "ecr:DescribeRepositories",
+                    "ecr:DescribeImages",
+                    "ecr:DescribeImageScanFindings",
+                    "ecr:CompleteLayerUpload",
+                    "ecr:BatchGetImage",
+                    "ecr:BatchCheckLayerAvailability" ]
+    resources   = [ "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/*" ]
+  }
+}
+
+module "iam_policy_github_actions_push_ecr" {
+  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_policy?ref=v0.1.8"
+
+  name        = "GitHub-Actions-ECR-Push-Policy"
+  description = "A Policy allowing GitHub Actions to push images to ECR."
+  policy      = data.aws_iam_policy_document.iam_policy_document_github_actions_push_ecr.json
+}
+
+module "iam_group_github_actions_push_ecr" {
+  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_group?ref=v0.1.8"
+
+  name        = "GitHub-Actions-Muds-Push-to-ECR"
+}
+
+module "iam_group_policy_attachment_github_actions_push_ecr" {
+  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_group_policy_attachment?ref=v0.1.8"
+
+  group_name  = module.iam_group_github_actions_push_ecr.name
+  policy_arn  = module.iam_policy_github_actions_push_ecr.policy_arn
 }
