@@ -61,7 +61,7 @@ module "acm_certificate" {
 }
 
 module "cloudfront_distribution" {
-  source                                 = "github.com/mudmuseum/terraform-modules.git//modules/cloudfront_distribution?ref=v0.0.17"
+  source                                 = "github.com/mudmuseum/terraform-modules.git//modules/cloudfront_distribution?ref=v0.1.7"
 
   bucket_regional_domain_name            = module.s3_bucket_website.bucket_regional_domain_name
   cloudfront_origin_origin_id            = "S3-mudmuseum.com"
