@@ -23,7 +23,7 @@ locals {
 ############################################
 
 module "s3_backups_mudmuseum" {
-  source                = "github.com/mudmuseum/terraform-modules.git//modules/s3?ref=v0.2.3"
+  source                = "github.com/mudmuseum/terraform-modules.git//modules/s3?ref=v0.2.10.a"
 
   bucket                = "mudmuseum-backups"
   logging_target_prefix = "ec2-backups"

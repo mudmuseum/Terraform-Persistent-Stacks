@@ -1,15 +1,40 @@
+########################
+#                      #
+#      Setup Tags      #
+#                      #
+########################
+
+data "aws_region" "current-region" {}
+
+locals {
+  tags = {
+    "cost-center"        = "mudmuseum"
+    "mm:resource-region" = data.aws_region.current-region.name
+    "mm:project"         = "website"
+    "mm:environment"     = "persistent"
+  }
+}
+
+####################################################
+#                                                  #
+#      Root Module - CloudFront, S3, Website       #
+#                                                  #
+####################################################
+
 module "s3_bucket_website" {
-  source                                 = "github.com/mudmuseum/terraform-modules.git//modules/s3?ref=v0.0.17"
+  source                                 = "github.com/mudmuseum/terraform-modules.git//modules/s3?ref=v0.2.10.a"
 
   bucket                                 = "mudmuseum.com"
   logging_target_bucket                  = "mudmuseum-logs"
   logging_target_prefix                  = "mudmuseum-s3-bucket-server-access-logging"
+
+  tags                                   = merge( local.tags, map("mm:resource-type", "aws_s3_bucket") )
 }
 
 data "aws_canonical_user_id" "current" { }
 
 module "s3_bucket_logs" {
-  source                                 = "github.com/mudmuseum/terraform-modules.git//modules/s3?ref=v0.0.17"
+  source                                 = "github.com/mudmuseum/terraform-modules.git//modules/s3?ref=v0.2.10.a"
 
   bucket                                 = "mudmuseum-logs"
   lifecycle_id                           = "Cleanup old files"
@@ -41,6 +66,8 @@ module "s3_bucket_logs" {
       "uri"         = ""
     }
   ]
+
+  tags                                   = merge( local.tags, map("mm:resource-type", "aws_s3_bucket") )
 }
 
 module "cloudfront_origin_access_identity" {
@@ -54,14 +81,16 @@ module "cloudfront_cache_policy" {
 }
 
 module "acm_certificate" {
-  source                                 = "github.com/mudmuseum/terraform-modules.git//modules/acm_certificate?ref=v0.0.17"
+  source                                 = "github.com/mudmuseum/terraform-modules.git//modules/acm_certificate?ref=v0.2.9"
 
   domain_name                            = "mudmuseum.com"
   subject_alternative_names              = ["web.mudmuseum.com", "www.mudmuseum.com"]
+
+  tags                                   = merge( local.tags, map("mm:resource-type", "aws_acm_certificate", "Name", "MudMuseum Website Certificate") )
 }
 
 module "cloudfront_distribution" {
-  source                                 = "github.com/mudmuseum/terraform-modules.git//modules/cloudfront_distribution?ref=v0.1.7"
+  source                                 = "github.com/mudmuseum/terraform-modules.git//modules/cloudfront_distribution?ref=v0.2.10"
 
   bucket_regional_domain_name            = module.s3_bucket_website.bucket_regional_domain_name
   cloudfront_origin_origin_id            = "S3-mudmuseum.com"
@@ -72,4 +101,6 @@ module "cloudfront_distribution" {
   cloudfront_aliases                     = ["mudmuseum.com", "web.mudmuseum.com", "www.mudmuseum.com"]
   cloudfront_cache_policy_id             = module.cloudfront_cache_policy.id
   acm_certificate_arn                    = module.acm_certificate.arn
+
+  tags                                   = merge( local.tags, map("mm:resource-type", "aws_cloudfront_distribution", "Name", "MudMuseum CloudFront Distribution for Website") )
 }
