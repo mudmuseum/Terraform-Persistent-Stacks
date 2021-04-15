@@ -1,3 +1,18 @@
+########################
+#                      #
+#      Setup Tags      #
+#                      #
+########################
+
+locals {
+  tags = {
+    "cost-center"        = "mudmuseum"
+    "mm:resource-region" = "global"
+    "mm:project"         = "pipeline-build-push"
+    "mm:environment"     = "persistent"
+  }
+}
+
 data "aws_caller_identity" "current" {}
 
 #####################################
@@ -27,15 +42,17 @@ data "aws_iam_policy_document" "iam_policy_document_github_actions" {
 }
 
 module "iam_policy_github_actions_website" {
-  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_policy?ref=v0.1.8"
+  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_policy?ref=v0.2.5"
 
   name        = "GitHub-Actions-Website-S3-Deployment-Policy"
   description = "A Policy allowing GitHub Actions to deploy the website to the mudmuseum.com S3 bucket with restricted permissions and specified source IP ranges."
   policy      = data.aws_iam_policy_document.iam_policy_document_github_actions.json
+
+  tags        = merge( local.tags, map("mm:resource-type", "aws_iam_policy") )
 }
 
 module "iam_group_github_actions_website" {
-  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_group?ref=v0.1.8"
+  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_group?ref=v0.2.6"
 
   name        = "GitHub-Actions-Website-S3-Deployment"
 }
@@ -81,15 +98,17 @@ data "aws_iam_policy_document" "iam_policy_document_github_actions_push_ecr" {
 }
 
 module "iam_policy_github_actions_push_ecr" {
-  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_policy?ref=v0.1.8"
+  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_policy?ref=v0.2.5"
 
   name        = "GitHub-Actions-ECR-Push-Policy"
   description = "A Policy allowing GitHub Actions to push images to ECR."
   policy      = data.aws_iam_policy_document.iam_policy_document_github_actions_push_ecr.json
+
+  tags        = merge( local.tags, map("mm:resource-type", "aws_iam_policy") )
 }
 
 module "iam_group_github_actions_push_ecr" {
-  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_group?ref=v0.1.8"
+  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_group?ref=v0.2.6"
 
   name        = "GitHub-Actions-Muds-Push-to-ECR"
 }
