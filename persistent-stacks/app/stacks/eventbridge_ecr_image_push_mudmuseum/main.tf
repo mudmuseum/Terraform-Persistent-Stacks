@@ -42,7 +42,7 @@ data "aws_iam_policy_document" "iam_policy_document_eventbridge_invoke_run_comma
 }
 
 module "iam_policy_eventbridge_invoke_run_command" {
-  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_policy?ref=v0.2.28"
+  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_policy?ref=v0.2.29"
 
   name        = "Amazon_EventBridge_Invoke_Run_Command_506570835"
 #  description = "A Policy to allow AWS to invoke Run Command through an EventBridge trigger."
@@ -75,7 +75,7 @@ data "aws_iam_policy_document" "iam_policy_document_assume_role_eventbridge_invo
 ###########################################
 
 module "iam_role_eventbridge_invoke_run_command" {
-  source             = "github.com/mudmuseum/terraform-modules.git//modules/iam_role?ref=v0.2.28"
+  source             = "github.com/mudmuseum/terraform-modules.git//modules/iam_role?ref=v0.2.29"
 
   role_name          = "Amazon_EventBridge_Invoke_Run_Command_506570835"
   assume_role_policy = data.aws_iam_policy_document.iam_policy_document_assume_role_eventbridge_invoke_run_command.json
@@ -119,7 +119,7 @@ PATTERN
 }
 
 module "eventbridge_target_invoke_run_command" {
-  source = "github.com/mudmuseum/terraform-modules.git//modules/eventbridge_target?ref=v0.2.28"
+  source = "github.com/mudmuseum/terraform-modules.git//modules/eventbridge_target?ref=v0.2.29"
 
   target_id           = "Ida883a8cf-bbcb-4e05-ba2f-cc5cd34e117b"
   arn                 = "arn:aws:ssm:${data.aws_region.current-region.name}::document/AWS-RunShellScript"
@@ -127,15 +127,7 @@ module "eventbridge_target_invoke_run_command" {
   role_arn            = module.iam_role_eventbridge_invoke_run_command.role_arn
 
   input_paths         = { repository = "$.detail.repository-name" }
-  input_template      = <<EOF
-                              {
-                                "commands": [
-                                              "docker stop <repository>", 
-                                              "docker rm <repository>", 
-                                              "/usr/local/bin/muds/docker_startup.sh <repository>" 
-                                            ]
-                              }
-EOF
+  input_template      = "{ \"commands\": [ \"docker stop <repository>\", \"docker rm <repository>\", \"/usr/local/bin/muds/docker_startup.sh <repository>\" ] }"
 
   run_command_targets = [ 
                           {
