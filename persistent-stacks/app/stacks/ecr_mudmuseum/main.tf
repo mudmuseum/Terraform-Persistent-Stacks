@@ -25,22 +25,27 @@ locals {
 module "ecr_mudmuseum" {
   source       = "github.com/mudmuseum/terraform-modules.git//modules/elastic_container_registry?ref=v0.2.11"
 
-#  names        = [ "rom-2.4.b4",
-#                   "dystopiagold",
-#                   "gathering-1.0.1" ]
-
   repositories = [ 
                    { 
                      name: "rom-2.4.b4"
-                     tags: merge(local.tags, map("port", "8000", "mud-name", "ROM 2.4b4") ) 
+                     tags: merge(local.tags, 
+                                 map("port", "8000", 
+                                     "mud-name", "ROM 2.4b4", 
+                                     "mud-directory", "rom") ) 
                    },
                    {
                      name: "dystopiagold"
-                     tags: merge(local.tags, map("port", "9000", "mud-name", "Dystopia Gold") )
+                     tags: merge(local.tags, 
+                                 map("port", "9000", 
+                                     "mud-name", "Dystopia Gold", 
+                                     "mud-directory", "dystopia") )
                    },
                    {
                      name: "gathering-1.0.1"
-                     tags: merge(local.tags, map("port", "9000", "mud-name", "The Gathering 1.0.1") )
+                     tags: merge(local.tags, 
+                                 map("port", "9000", 
+                                     "mud-name", "The Gathering 1.0.1", 
+                                     "mud-directory", "gathering") )
                    }
                  ]
 }
