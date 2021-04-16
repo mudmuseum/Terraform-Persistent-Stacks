@@ -42,12 +42,12 @@ data "aws_iam_policy_document" "iam_policy_document_eventbridge_invoke_run_comma
 }
 
 module "iam_policy_eventbridge_invoke_run_command" {
-  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_policy?ref=v0.2.5"
+  source      = "github.com/mudmuseum/terraform-modules.git//modules/iam_policy?ref=v0.2.28"
 
   name        = "Amazon_EventBridge_Invoke_Run_Command_506570835"
-  description = "A Policy to allow AWS to invoke Run Command through an EventBridge trigger."
+#  description = "A Policy to allow AWS to invoke Run Command through an EventBridge trigger."
   policy      = data.aws_iam_policy_document.iam_policy_document_eventbridge_invoke_run_command.json
-
+  path        = "/service-role/"
   tags        = merge( local.tags, map("mm:resource-type", "aws_iam_policy") )
 }
 
@@ -75,7 +75,7 @@ data "aws_iam_policy_document" "iam_policy_document_assume_role_eventbridge_invo
 ###########################################
 
 module "iam_role_eventbridge_invoke_run_command" {
-  source             = "github.com/mudmuseum/terraform-modules.git//modules/iam_role?ref=v0.2.18"
+  source             = "github.com/mudmuseum/terraform-modules.git//modules/iam_role?ref=v0.2.28"
 
   role_name          = "Amazon_EventBridge_Invoke_Run_Command_506570835"
   assume_role_policy = data.aws_iam_policy_document.iam_policy_document_assume_role_eventbridge_invoke_run_command.json
@@ -119,9 +119,9 @@ PATTERN
 }
 
 module "eventbridge_target_invoke_run_command" {
-  source = "github.com/mudmuseum/terraform-modules.git//modules/eventbridge_target?ref=v0.2.23"
+  source = "github.com/mudmuseum/terraform-modules.git//modules/eventbridge_target?ref=v0.2.28"
 
-#  target_id = module.eventbridge_rule_invoke_run_command.name
+  target_id           = "Ida883a8cf-bbcb-4e05-ba2f-cc5cd34e117b"
   arn                 = "arn:aws:ssm:${data.aws_region.current-region.name}::document/AWS-RunShellScript"
   rule                = module.eventbridge_rule_invoke_run_command.name
   role_arn            = module.iam_role_eventbridge_invoke_run_command.role_arn
