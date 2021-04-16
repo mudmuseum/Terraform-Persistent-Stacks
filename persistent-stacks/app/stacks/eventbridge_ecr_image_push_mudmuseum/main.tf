@@ -135,7 +135,7 @@ module "eventbridge_target_invoke_run_command" {
                             tag_value = [ "aws_ec2_instance" ]
                           },
                           {
-                            tag_key   = "mm:project"
+                            tag_key   = "tag:mm:project"
                             tag_value = [ "mud host" ]
                           }
                         ]
