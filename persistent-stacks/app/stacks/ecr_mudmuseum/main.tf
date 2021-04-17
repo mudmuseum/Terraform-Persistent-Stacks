@@ -43,7 +43,7 @@ module "ecr_mudmuseum" {
                    {
                      name: "gathering-1.0.1"
                      tags: merge(local.tags, 
-                                 map("port", "9000", 
+                                 map("port", "9100", 
                                      "mud-name", "The Gathering 1.0.1", 
                                      "mud-directory", "gathering") )
                    }
